@@ -404,8 +404,15 @@ h1{
   background:var(--surface);
 }
 .row.level-fase{background:var(--surface-raised);}
-.row.row-section-divider{border-top:2px solid var(--line-strong);}
 .row:hover .row-actions{opacity:1;}
+.section-gap-row{
+  display:flex;
+  height:16px;
+  background:var(--bg);
+  border-top:1px solid var(--line-strong);
+  border-bottom:1px solid var(--line-strong);
+}
+.section-gap-row .name-col{background:var(--bg);border-right:none;min-height:0;}
 
 .name-col{
   position:sticky;
@@ -1370,20 +1377,31 @@ datalist{}
     return row;
   }
 
+  function buildSectionGap(timelineWidth){
+    var gap = el("div","section-gap-row");
+    var spacer = el("div","name-col");
+    gap.appendChild(spacer);
+    var tl = el("div","timeline-col");
+    tl.style.width = timelineWidth+"px";
+    gap.appendChild(tl);
+    return gap;
+  }
+
   function renderEntregaView(range, timelineWidth){
     var roots = state.items.filter(function(it){ return it.parentId === null; });
     roots.forEach(function(root, idx){
-      appendItemRow(root, 0, range, timelineWidth, idx>0);
+      if(idx>0) boardEl.appendChild(buildSectionGap(timelineWidth));
+      appendItemRow(root, 0, range, timelineWidth);
     });
     if(roots.length===0){
       boardEl.appendChild(el("div","empty-state","Nenhuma tarefa cadastrada ainda. Clique em “+ Nova Tarefa” para começar."));
     }
   }
 
-  function appendItemRow(item, depth, range, timelineWidth, sectionDivider){
+  function appendItemRow(item, depth, range, timelineWidth){
     var group = isGroup(item);
     var levelClass = depth===0 ? "level-fase" : (depth===1 ? "level-grupo" : "level-entrega");
-    var row = el("div","row "+levelClass+(sectionDivider?" row-section-divider":""));
+    var row = el("div","row "+levelClass);
     row.dataset.id = item.id;
 
     var nameCol = el("div","name-col");
@@ -1829,7 +1847,7 @@ datalist{}
       return;
     }
 
-    people.forEach(function(person){
+    people.forEach(function(person, idx){
       var items = byPerson[person].slice().sort(function(a,b){ return parseDate(a.start)-parseDate(b.start); });
       var lanesEnd = [];
       items.forEach(function(it){
@@ -1841,6 +1859,8 @@ datalist{}
       });
       var laneCount = Math.max(1, lanesEnd.length);
       var rowHeight = laneCount*86 + 16;
+
+      if(idx>0) boardEl.appendChild(buildSectionGap(timelineWidth));
 
       var row = el("div","row person-row");
       row.dataset.person = person;
@@ -1910,7 +1930,9 @@ datalist{}
       var laneCount = Math.max(1, lanesEnd.length);
       var rowHeight = laneCount*86 + 16;
 
-      var row = el("div","row person-row"+(idx>0?" row-section-divider":""));
+      if(idx>0) boardEl.appendChild(buildSectionGap(timelineWidth));
+
+      var row = el("div","row person-row");
       row.style.minHeight = rowHeight+"px";
       var nameCol = el("div","name-col");
       nameCol.style.minHeight = rowHeight+"px";
