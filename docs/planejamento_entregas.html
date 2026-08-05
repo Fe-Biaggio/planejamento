@@ -177,7 +177,7 @@ button{font-family:inherit;}
   align-items:flex-start;
   justify-content:space-between;
   gap:24px;
-  padding:20px 24px 16px;
+  padding:18px 24px 14px;
   border-bottom:1px solid var(--line);
   background:var(--surface);
   flex-wrap:wrap;
@@ -197,7 +197,7 @@ h1{
   font-weight:700;
   font-size:22px;
   letter-spacing:-0.01em;
-  margin:0 0 4px;
+  margin:0;
   text-wrap:balance;
 }
 .subtitle{
@@ -269,6 +269,81 @@ h1{
 .btn-danger:hover{border-color:var(--block);}
 .btn svg{width:14px;height:14px;flex:none;}
 
+.settings-wrap{position:relative;}
+.btn-icon-only{
+  width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line-strong);
+  background:var(--surface);
+  color:var(--ink-muted);
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:border-color .15s ease, color .15s ease, background .15s ease;
+}
+.btn-icon-only:hover{border-color:var(--accent);color:var(--ink);}
+.btn-icon-only svg{width:16px;height:16px;}
+.btn-icon-only[aria-expanded="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.settings-menu{
+  position:absolute;
+  top:calc(100% + 8px);
+  right:0;
+  min-width:230px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow);
+  padding:6px;
+  z-index:13;
+  opacity:0;
+  transform:translateY(-4px);
+  pointer-events:none;
+  transition:opacity .12s ease, transform .12s ease;
+}
+.settings-menu.open{opacity:1;transform:translateY(0);pointer-events:auto;}
+.settings-item{
+  display:flex;
+  align-items:center;
+  width:100%;
+  text-align:left;
+  border:none;
+  background:transparent;
+  color:var(--ink);
+  font-size:13px;
+  font-weight:500;
+  padding:9px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.settings-item:hover{background:var(--bg);}
+.settings-sep{height:1px;background:var(--line);margin:5px 2px;}
+
+.lm-add-row{align-items:flex-end;margin-bottom:18px;}
+.lm-add-row .field{flex:1;}
+.lm-list{display:flex;flex-direction:column;gap:2px;}
+.lm-row{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 4px;
+  border-bottom:1px solid var(--line);
+}
+.lm-name{
+  flex:1;
+  font-size:13px;
+  border-radius:4px;
+  padding:2px 6px;
+  margin:-2px -6px;
+  cursor:text;
+}
+.lm-name:hover{background:var(--bg);}
+.lm-name:focus{outline:2px solid var(--accent);background:var(--surface);}
+.lm-delete{
+  width:24px;height:24px;flex:none;
+  border:none;background:transparent;color:var(--ink-faint);
+  cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;
+}
+.lm-delete:hover{background:var(--block-soft);color:var(--block);}
+.lm-delete svg{width:13px;height:13px;}
+.lm-empty{color:var(--ink-faint);font-size:12.5px;padding:8px 4px;}
+
 /* ---------- Legend ---------- */
 .legend{
   display:flex;
@@ -331,8 +406,8 @@ h1{
   position:sticky;
   left:0;
   z-index:3;
-  width:340px;
-  flex:0 0 340px;
+  width:var(--namecol-w,340px);
+  flex:0 0 var(--namecol-w,340px);
   background:inherit;
   border-right:1px solid var(--line);
   display:flex;
@@ -340,7 +415,25 @@ h1{
   padding:0 10px;
   gap:6px;
   min-height:40px;
+  overflow:hidden;
 }
+.col-resize-handle{
+  position:fixed;
+  width:8px;
+  margin-left:-4px;
+  cursor:col-resize;
+  z-index:9;
+  background:transparent;
+  touch-action:none;
+}
+.col-resize-handle::after{
+  content:"";
+  position:absolute;
+  left:3px;top:0;bottom:0;width:2px;
+  background:transparent;
+  transition:background .12s ease;
+}
+.col-resize-handle:hover::after,.col-resize-handle.dragging::after{background:var(--accent);}
 .row.level-fase .name-col{min-height:44px;}
 .row.level-grupo .name-col{min-height:36px;}
 
@@ -476,6 +569,11 @@ h1{
 .phase-boundary{
   position:absolute;top:0;bottom:0;
   border-left:1px solid var(--line);
+}
+.week-boundary{
+  position:absolute;top:0;bottom:0;
+  border-left:1px dashed var(--line);
+  opacity:.45;
 }
 .today-marker{
   position:absolute;top:0;bottom:0;
@@ -667,6 +765,13 @@ h1{
   flex-direction:column;
 }
 .panel.open{transform:translateX(0);}
+.panel.panel-left{
+  left:0;right:auto;
+  border-left:none;
+  border-right:1px solid var(--line);
+  transform:translateX(-100%);
+}
+.panel.panel-left.open{transform:translateX(0);}
 .panel-header{
   padding:18px 20px 14px;
   border-bottom:1px solid var(--line);
@@ -683,12 +788,12 @@ h1{
   width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;
 }
 .panel-close:hover{background:var(--bg);color:var(--ink);}
-.panel-body{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px;}
-.field{display:flex;flex-direction:column;gap:6px;}
+.panel-body{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:20px;}
+.field{display:flex;flex-direction:column;gap:7px;}
 .field label{
   font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);
 }
-.field input[type="text"],.field select,.field input[type="date"]{
+.field input[type="text"],.field select,.field input[type="date"],.field textarea{
   font-family:'Plex Sans',sans-serif;
   font-size:13px;
   padding:9px 10px;
@@ -697,11 +802,14 @@ h1{
   background:var(--bg);
   color:var(--ink);
 }
-.field input:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:70px;line-height:1.5;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent);}
 .field-row{display:flex;gap:10px;}
 .field-row .field{flex:1;min-width:0;}
 .field-hint{font-size:11px;color:var(--ink-faint);}
-.status-options{display:flex;flex-wrap:wrap;gap:6px;}
+.field-resp{margin-top:2px;}
+.field-status{margin-top:6px;padding-top:14px;border-top:1px solid var(--line);}
+.status-options{display:flex;flex-wrap:wrap;gap:8px;}
 .status-opt{
   border:1px solid var(--line-strong);
   background:var(--bg);
@@ -755,18 +863,33 @@ datalist{}
     <div class="title-block">
       <p class="eyebrow">Itaú - Planejamento</p>
       <h1>Roteiro de Entregas</h1>
-      <p class="subtitle">Escopo, prazos e responsáveis até janeiro de 2027. Clique em qualquer item para editar.</p>
     </div>
     <div class="topbar-actions">
       <div class="view-switch" id="viewSwitch">
         <button data-view="entrega" class="active">Por entrega</button>
         <button data-view="responsavel">Por responsável</button>
+        <button data-view="categoria">Por categoria</button>
       </div>
-      <button class="btn" id="btnAddRoot">+ Nova fase</button>
-      <button class="btn" id="btnAddMarco">+ Adicionar Marco</button>
+      <button class="btn" id="btnAddRoot">+ Nova Tarefa</button>
       <button class="btn btn-ghost" id="btnImport" title="Importar planejamento (.json)">Importar</button>
       <button class="btn btn-ghost" id="btnExport" title="Exportar planejamento (.json)">Exportar</button>
       <button class="btn btn-ghost btn-danger" id="btnReset" title="Restaurar roteiro inicial">Resetar</button>
+      <div class="settings-wrap">
+        <button class="btn-icon-only" id="btnSettings" title="Configurações" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.4"/><path d="M16.4 10c0 .33-.03.65-.08.96l1.55 1.2-1.5 2.6-1.83-.6c-.52.44-1.1.79-1.74 1.03l-.35 1.91H8.55l-.35-1.91a5.9 5.9 0 01-1.74-1.03l-1.83.6-1.5-2.6 1.55-1.2A5.98 5.98 0 014.6 10c0-.33.03-.65.08-.96l-1.55-1.2 1.5-2.6 1.83.6c.52-.44 1.1-.79 1.74-1.03l.35-1.91h2.9l.35 1.91c.64.24 1.22.59 1.74 1.03l1.83-.6 1.5 2.6-1.55 1.2c.05.31.08.63.08.96z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <button class="settings-item" id="menuToggleTheme">
+            <span id="menuThemeLabel">Modo escuro</span>
+          </button>
+          <button class="settings-item" id="menuManageResp">Gerenciar responsáveis</button>
+          <button class="settings-item" id="menuManageCat">Gerenciar categorias</button>
+          <div class="settings-sep"></div>
+          <button class="settings-item" id="menuAddMarco">+ Adicionar marco</button>
+          <div class="settings-sep"></div>
+          <button class="settings-item" id="menuExportExcel">Exportar em Excel (.csv)</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -785,6 +908,8 @@ datalist{}
   </div>
 </div>
 
+<div class="col-resize-handle" id="colResizeHandle" title="Arrastar para redimensionar a coluna"></div>
+
 <div class="scrim" id="scrim"></div>
 
 <div class="confirm-dialog" id="confirmDialog">
@@ -795,7 +920,7 @@ datalist{}
   </div>
 </div>
 
-<div class="panel" id="editPanel">
+<div class="panel panel-left" id="editPanel">
   <div class="panel-header">
     <h2 id="panelTitle">Editar item</h2>
     <button class="panel-close" id="panelClose" aria-label="Fechar">
@@ -810,7 +935,7 @@ datalist{}
     <div class="field">
       <label for="fParent">Pertence a</label>
       <select id="fParent"></select>
-      <span class="field-hint">Define a hierarquia (fase &rarr; grupo &rarr; entrega).</span>
+      <span class="field-hint">Define a hierarquia (Grupo &rarr; Tarefa).</span>
     </div>
     <div id="leafFields">
       <div class="field-row">
@@ -823,16 +948,23 @@ datalist{}
           <input type="date" id="fEnd" />
         </div>
       </div>
-      <div class="field">
+      <div class="field field-resp">
         <label for="fResp">Responsável</label>
-        <input type="text" id="fResp" list="peopleList" placeholder="Nome da pessoa" />
-        <datalist id="peopleList"></datalist>
+        <select id="fResp"></select>
       </div>
-      <div class="field">
+      <div class="field field-status">
         <label>Status</label>
         <div class="status-options" id="statusOptions"></div>
       </div>
-      <p class="field-hint" id="leafHint">Datas, responsável e status só aparecem em itens sem sub-itens.</p>
+      <div class="field">
+        <label for="fCategoria">Categoria</label>
+        <select id="fCategoria"></select>
+      </div>
+      <div class="field">
+        <label for="fDescricao">Descrição</label>
+        <textarea id="fDescricao" rows="4" placeholder="Detalhes, contexto, links..."></textarea>
+      </div>
+      <p class="field-hint" id="leafHint">Datas, responsável, status, categoria e descrição só aparecem em itens sem sub-itens.</p>
     </div>
   </div>
   <div class="panel-footer">
@@ -870,6 +1002,25 @@ datalist{}
   </div>
 </div>
 
+<div class="panel" id="listManagerPanel">
+  <div class="panel-header">
+    <h2 id="listManagerTitle">Gerenciar</h2>
+    <button class="panel-close" id="listManagerClose" aria-label="Fechar">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="panel-body">
+    <div class="field-row lm-add-row">
+      <div class="field">
+        <label for="lmNewValue" id="lmNewLabel">Novo</label>
+        <input type="text" id="lmNewValue" placeholder="" />
+      </div>
+      <button class="btn btn-primary" id="lmAddBtn">Adicionar</button>
+    </div>
+    <div id="lmList" class="lm-list"></div>
+  </div>
+</div>
+
 <input type="file" id="importInput" accept="application/json" hidden />
 <div class="toast-wrap" id="toastWrap"></div>
 
@@ -888,41 +1039,46 @@ datalist{}
   ];
   var PHASE_COLORS = ["#1F6F63","#5B6EA8","#A2637A","#8A7A34","#4A7D9E"];
 
+  var DEFAULT_CATEGORIES = ["Bases","Melhorias","Novo CRM","Salesforce","Automatizações"];
+
   function seedData(){
     var orderCounter = 0;
-    var mk = function(id,parentId,name,start,end,resp,status){
-      return {id:id,parentId:parentId,name:name,start:start||null,end:end||null,responsavel:resp||null,status:status||null,order:orderCounter++};
+    var mk = function(id,parentId,name,start,end,resp,status,categoria,descricao){
+      return {id:id,parentId:parentId,name:name,start:start||null,end:end||null,responsavel:resp||null,status:status||null,order:orderCounter++,categoria:categoria||null,descricao:descricao||""};
     };
     return {
       people:["A definir"],
+      categories:DEFAULT_CATEGORIES.slice(),
       collapsed:[],
       marcos:[],
+      leftColWidth:340,
+      theme:null,
       items:[
         mk("f1",null,"Fase 1 — MVP"),
-        mk("f1-1","f1","Cadastro e Segmentação de Clientes","2026-08-03","2026-08-24","A definir","em_andamento"),
-        mk("f1-2","f1","Integração Core Bancário Itaú","2026-08-24","2026-09-14","A definir","planejado"),
-        mk("f1-3","f1","Pipeline de Vendas Básico","2026-08-24","2026-09-07","A definir","planejado"),
+        mk("f1-1","f1","Cadastro e Segmentação de Clientes","2026-08-03","2026-08-24","A definir","em_andamento","Bases"),
+        mk("f1-2","f1","Integração Core Bancário Itaú","2026-08-24","2026-09-14","A definir","planejado","Bases"),
+        mk("f1-3","f1","Pipeline de Vendas Básico","2026-08-24","2026-09-07","A definir","planejado","Novo CRM"),
 
         mk("f2",null,"Fase 2 — Omnichannel"),
-        mk("f2-1","f2","Histórico Unificado de Atendimento","2026-09-14","2026-10-05","A definir","planejado"),
+        mk("f2-1","f2","Histórico Unificado de Atendimento","2026-09-14","2026-10-05","A definir","planejado","Novo CRM"),
         mk("f2-2","f2","Registro de Visitas (Call Reports)"),
-        mk("f2-2-1","f2-2","Captura via Outlook (e-mail)","2026-09-14","2026-09-28","A definir","planejado"),
-        mk("f2-2-2","f2-2","Captura via Microsoft Teams","2026-09-21","2026-10-05","A definir","planejado"),
-        mk("f2-2-3","f2-2","Captura via Tuvis (WhatsApp/Telegram)","2026-09-28","2026-10-12","A definir","planejado"),
-        mk("f2-2-4","f2-2","Captura via telefone (ferramenta a definir)","2026-10-05","2026-10-26","A definir","bloqueado"),
-        mk("f2-2-5","f2-2","Registro manual (usuário)","2026-09-14","2026-09-21","A definir","planejado"),
-        mk("f2-3","f2","Integração WhatsApp e Chat","2026-10-05","2026-10-26","A definir","planejado"),
+        mk("f2-2-1","f2-2","Captura via Outlook (e-mail)","2026-09-14","2026-09-28","A definir","planejado","Novo CRM"),
+        mk("f2-2-2","f2-2","Captura via Microsoft Teams","2026-09-21","2026-10-05","A definir","planejado","Novo CRM"),
+        mk("f2-2-3","f2-2","Captura via Tuvis (WhatsApp/Telegram)","2026-09-28","2026-10-12","A definir","planejado","Novo CRM"),
+        mk("f2-2-4","f2-2","Captura via telefone (ferramenta a definir)","2026-10-05","2026-10-26","A definir","bloqueado","Novo CRM"),
+        mk("f2-2-5","f2-2","Registro manual (usuário)","2026-09-14","2026-09-21","A definir","planejado","Novo CRM"),
+        mk("f2-3","f2","Integração WhatsApp e Chat","2026-10-05","2026-10-26","A definir","planejado","Novo CRM"),
 
         mk("f3",null,"Fase 3 — Automação"),
-        mk("f3-1","f3","Workflows de Aprovação e Alçadas","2026-10-26","2026-11-16","A definir","planejado"),
-        mk("f3-2","f3","Agenda e Central de Tarefas","2026-11-16","2026-11-30","A definir","planejado"),
+        mk("f3-1","f3","Workflows de Aprovação e Alçadas","2026-10-26","2026-11-16","A definir","planejado","Automatizações"),
+        mk("f3-2","f3","Agenda e Central de Tarefas","2026-11-16","2026-11-30","A definir","planejado","Automatizações"),
 
         mk("f4",null,"Fase 4 — Analytics"),
-        mk("f4-1","f4","Dashboards de Performance","2026-11-30","2026-12-21","A definir","planejado"),
-        mk("f4-2","f4","Metas e Comissionamento","2026-12-21","2027-01-04","A definir","planejado"),
+        mk("f4-1","f4","Dashboards de Performance","2026-11-30","2026-12-21","A definir","planejado","Melhorias"),
+        mk("f4-2","f4","Metas e Comissionamento","2026-12-21","2027-01-04","A definir","planejado","Melhorias"),
 
         mk("f5",null,"Fase 5 — Compliance"),
-        mk("f5-1","f5","Trilha de Auditoria e Compliance","2027-01-04","2027-01-25","A definir","planejado")
+        mk("f5-1","f5","Trilha de Auditoria e Compliance","2027-01-04","2027-01-25","A definir","planejado","Bases")
       ]
     };
   }
@@ -936,6 +1092,15 @@ datalist{}
         var parsed = JSON.parse(raw);
         if(parsed && Array.isArray(parsed.items)){
           if(!Array.isArray(parsed.marcos)) parsed.marcos = [];
+          if(!Array.isArray(parsed.categories)) parsed.categories = DEFAULT_CATEGORIES.slice();
+          if(!Array.isArray(parsed.people)) parsed.people = ["A definir"];
+          if(!Array.isArray(parsed.collapsed)) parsed.collapsed = [];
+          if(!parsed.leftColWidth) parsed.leftColWidth = 340;
+          if(parsed.theme === undefined) parsed.theme = null;
+          parsed.items.forEach(function(it){
+            if(it.categoria === undefined) it.categoria = null;
+            if(it.descricao === undefined) it.descricao = "";
+          });
           return parsed;
         }
       }
@@ -1058,6 +1223,7 @@ datalist{}
   // ---------- rendering ----------
   var currentView = "entrega";
   var boardEl = document.getElementById("board");
+  var boardScroll = document.getElementById("boardScroll");
   var draggedItemId = null;
   var dropIndicatorRow = null;
 
@@ -1096,15 +1262,19 @@ datalist{}
 
     if(currentView === "entrega"){
       renderEntregaView(range, timelineWidth);
-    } else {
+    } else if(currentView === "responsavel"){
       renderResponsavelView(range, timelineWidth);
+    } else {
+      renderCategoriaView(range, timelineWidth);
     }
     updatePeopleList();
+    updateCategoryOptions();
+    positionResizeHandle();
   }
 
   function buildHeaderRow(range, timelineWidth){
     var row = el("div","row header-row");
-    var nameCol = el("div","name-col","<span style='font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted)'>" + (currentView==="entrega" ? "Grupo / entrega" : "Responsável") + "</span>");
+    var nameCol = el("div","name-col","<span style='font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted)'>" + (currentView==="entrega" ? "Grupo / tarefa" : currentView==="responsavel" ? "Responsável" : "Categoria") + "</span>");
     row.appendChild(nameCol);
     var tl = el("div","timeline-col");
     tl.style.width = timelineWidth+"px";
@@ -1149,6 +1319,10 @@ datalist{}
         var b = el("div","phase-boundary");
         b.style.left = Math.round((cursor-range.start)/DAY*PX_PER_DAY)+"px";
         tl.appendChild(b);
+      } else if(cursor.getUTCDay()===1){
+        var wb = el("div","week-boundary");
+        wb.style.left = Math.round((cursor-range.start)/DAY*PX_PER_DAY)+"px";
+        tl.appendChild(wb);
       }
       cursor = new Date(cursor.getTime()+DAY);
     }
@@ -1195,7 +1369,7 @@ datalist{}
       appendItemRow(root, 0, range, timelineWidth);
     });
     if(roots.length===0){
-      boardEl.appendChild(el("div","empty-state","Nenhuma fase cadastrada ainda. Clique em “+ Nova fase” para começar."));
+      boardEl.appendChild(el("div","empty-state","Nenhuma tarefa cadastrada ainda. Clique em “+ Nova Tarefa” para começar."));
     }
   }
 
@@ -1277,6 +1451,7 @@ datalist{}
     disc.innerHTML = "<svg viewBox='0 0 12 12' fill='none'><path d='M3 2l5 4-5 4' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>";
     var collapsed = state.collapsed.indexOf(item.id) !== -1;
     if(collapsed) disc.classList.add("collapsed");
+    if(group && depth > 0 && collapsed) nameCol.style.minHeight = "84px";
     disc.addEventListener("click", function(ev){
       ev.stopPropagation();
       toggleCollapse(item.id);
@@ -1297,9 +1472,11 @@ datalist{}
     });
     nameCol.appendChild(nameText);
 
-    if(group || depth < 2){
-      var leaves = group ? descendantLeaves(item) : [];
-      nameCol.appendChild(el("span","count-badge", leaves.length+" entrega"+(leaves.length===1?"":"s")));
+    if(group){
+      var leaves = descendantLeaves(item);
+      nameCol.appendChild(el("span","count-badge", String(leaves.length)));
+    } else if(depth < 2){
+      // grupo/fase ainda sem sub-itens: nenhum selo (nem contagem, nem "A definir")
     } else if(item.responsavel){
       var chip2 = el("span","resp-chip");
       chip2.textContent = item.responsavel;
@@ -1329,8 +1506,11 @@ datalist{}
     var track = el("div","timeline-cell-track");
     tl.appendChild(track);
 
-    if(group){
-      var r = itemRange(item);
+    if(group && depth > 0 && collapsed){
+      var rc = itemRange(item);
+      if(rc) track.appendChild(buildGroupCascadeBar(item, range));
+    } else if(group){
+      var r = (depth === 0 && item.start && item.end) ? {start:item.start, end:item.end} : itemRange(item);
       if(r){
         var env = el("div","envelope");
         env.style.left = dateToPx(r.start, range)+"px";
@@ -1371,6 +1551,130 @@ datalist{}
     var days = Math.round(px / PX_PER_DAY);
     var d = new Date(range.start.getTime() + days*DAY);
     return fmtDate(d);
+  }
+
+  function buildGroupCascadeBar(item, range){
+    var r = itemRange(item);
+    var bar = el("div","bar bar-big group-bar");
+    bar.style.background = phaseColorFor(item);
+    bar.style.color = "#fff";
+    bar.style.left = dateToPx(r.start, range)+"px";
+    var w = dateToPx(r.end, range) - dateToPx(r.start, range);
+    bar.style.width = Math.max(96, w)+"px";
+    var label = el("span","bar-label");
+    label.textContent = item.name;
+    bar.appendChild(label);
+    var leaves = descendantLeaves(item);
+    bar.title = item.name + "\n" + fmtDisplay(r.start)+" – "+fmtDisplay(r.end) + "\n"+leaves.length+" sub-item"+(leaves.length===1?"":"s")+"\n(arraste para mover ou ajustar o intervalo — os sub-itens acompanham quando necessário)";
+    attachGroupCascadeInteractions(bar, item, range);
+    return bar;
+  }
+
+  function attachGroupCascadeInteractions(bar, groupItem, range){
+    var EDGE = 9;
+    var mode = null;
+    var startClientX = 0;
+    var origStartPx = 0, origEndPx = 0;
+    var moved = false;
+    var justDragged = false;
+
+    function edgeAt(clientX){
+      var rect = bar.getBoundingClientRect();
+      var offsetX = clientX - rect.left;
+      if(offsetX <= EDGE) return "start";
+      if(offsetX >= rect.width - EDGE) return "end";
+      return null;
+    }
+
+    bar.addEventListener("pointermove", function(ev){
+      if(mode) return;
+      bar.style.cursor = edgeAt(ev.clientX) ? "ew-resize" : "grab";
+    });
+    bar.addEventListener("pointerleave", function(){ if(!mode) bar.style.cursor = ""; });
+
+    bar.addEventListener("pointerdown", function(ev){
+      if(ev.button !== undefined && ev.button !== 0) return;
+      ev.stopPropagation();
+      ev.preventDefault();
+      var r0 = itemRange(groupItem);
+      var edge = edgeAt(ev.clientX);
+      mode = edge === "start" ? "resize-start" : edge === "end" ? "resize-end" : "move";
+      startClientX = ev.clientX;
+      origStartPx = dateToPx(r0.start, range);
+      origEndPx = dateToPx(r0.end, range);
+      moved = false;
+      bar.classList.add("dragging");
+      bar.style.cursor = mode === "move" ? "grabbing" : "ew-resize";
+      try{ bar.setPointerCapture(ev.pointerId); }catch(e){}
+    });
+
+    bar.addEventListener("pointermove", function(ev){
+      if(!mode) return;
+      var dx = ev.clientX - startClientX;
+      if(Math.abs(dx) > 3) moved = true;
+      if(mode === "move"){
+        bar.style.left = (origStartPx+dx)+"px";
+      } else if(mode === "resize-start"){
+        var newStartPx = Math.min(origStartPx+dx, origEndPx-PX_PER_DAY);
+        bar.style.left = newStartPx+"px";
+        bar.style.width = (origEndPx-newStartPx)+"px";
+      } else if(mode === "resize-end"){
+        var newEndPx = Math.max(origEndPx+dx, origStartPx+PX_PER_DAY);
+        bar.style.width = (newEndPx-origStartPx)+"px";
+      }
+    });
+
+    function finishDrag(ev){
+      if(!mode) return;
+      var dx = ev.clientX - startClientX;
+      if(moved){
+        var leaves = descendantLeaves(groupItem).filter(function(l){ return l.start && l.end; });
+        if(mode === "move"){
+          var days = Math.round(dx / PX_PER_DAY);
+          if(days !== 0){
+            leaves.forEach(function(l){
+              l.start = fmtDate(new Date(parseDate(l.start).getTime() + days*DAY));
+              l.end = fmtDate(new Date(parseDate(l.end).getTime() + days*DAY));
+            });
+          }
+        } else if(mode === "resize-start"){
+          var newStartPx = Math.min(origStartPx+dx, origEndPx-PX_PER_DAY);
+          var newStartStr = pxToDateStr(newStartPx, range);
+          var newStartDate = parseDate(newStartStr);
+          leaves.forEach(function(l){
+            if(parseDate(l.start) < newStartDate){
+              l.start = newStartStr;
+              if(parseDate(l.end) < newStartDate) l.end = newStartStr;
+            }
+          });
+        } else if(mode === "resize-end"){
+          var newEndPx = Math.max(origEndPx+dx, origStartPx+PX_PER_DAY);
+          var newEndStr = pxToDateStr(newEndPx, range);
+          var newEndDate = parseDate(newEndStr);
+          leaves.forEach(function(l){
+            if(parseDate(l.end) > newEndDate){
+              l.end = newEndStr;
+              if(parseDate(l.start) > newEndDate) l.start = newEndStr;
+            }
+          });
+        }
+        saveState();
+        justDragged = true;
+      }
+      mode = null;
+      bar.classList.remove("dragging");
+      bar.style.cursor = "";
+      if(moved){ moved = false; render(); }
+    }
+
+    bar.addEventListener("pointerup", finishDrag);
+    bar.addEventListener("pointercancel", function(){ mode=null; moved=false; bar.classList.remove("dragging"); bar.style.cursor=""; });
+
+    bar.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      if(justDragged){ justDragged = false; return; }
+      openPanel(groupItem.id);
+    });
   }
 
   function attachBarInteractions(bar, item, range, crossRow){
@@ -1560,6 +1864,73 @@ datalist{}
     });
   }
 
+  function renderCategoriaView(range, timelineWidth){
+    var leaves = state.items.filter(function(it){ return !isGroup(it) && it.start && it.end; });
+    var byCategoria = {};
+    leaves.forEach(function(l){
+      var c = l.categoria || "Sem categoria";
+      (byCategoria[c] = byCategoria[c] || []).push(l);
+    });
+    var cats = Object.keys(byCategoria).sort(function(a,b){
+      if(a === "Sem categoria") return 1;
+      if(b === "Sem categoria") return -1;
+      return a.localeCompare(b,"pt-BR");
+    });
+
+    if(cats.length===0){
+      boardEl.appendChild(el("div","empty-state","Nenhuma entrega com datas para exibir por categoria ainda."));
+      return;
+    }
+
+    cats.forEach(function(categoria){
+      var items = byCategoria[categoria].slice().sort(function(a,b){ return parseDate(a.start)-parseDate(b.start); });
+      var lanesEnd = [];
+      items.forEach(function(it){
+        var s = parseDate(it.start).getTime();
+        var laneIdx = lanesEnd.findIndex(function(end){ return s >= end; });
+        if(laneIdx === -1){ laneIdx = lanesEnd.length; lanesEnd.push(0); }
+        lanesEnd[laneIdx] = parseDate(it.end).getTime();
+        it._lane = laneIdx;
+      });
+      var laneCount = Math.max(1, lanesEnd.length);
+      var rowHeight = laneCount*86 + 16;
+
+      var row = el("div","row person-row");
+      row.style.minHeight = rowHeight+"px";
+      var nameCol = el("div","name-col");
+      nameCol.style.minHeight = rowHeight+"px";
+      var av = el("div","avatar", categoria==="Sem categoria" ? "—" : initials(categoria));
+      nameCol.appendChild(av);
+      var nameText = el("span","name-text");
+      nameText.textContent = categoria;
+      nameCol.appendChild(nameText);
+      var badge = el("span","count-badge", String(items.length));
+      nameCol.appendChild(badge);
+      row.appendChild(nameCol);
+
+      var tl = el("div","timeline-col");
+      tl.style.width = timelineWidth+"px";
+      tl.style.minHeight = rowHeight+"px";
+      var track = el("div","timeline-cell-track");
+      track.style.height = rowHeight+"px";
+
+      items.forEach(function(it){
+        var bar = buildBar(it, range, true, false);
+        bar.style.top = (8 + it._lane*86)+"px";
+        bar.style.transform = "none";
+        var parent = state.items.find(function(p){ return p.id === it.parentId; });
+        var chain = [];
+        var p = parent;
+        while(p){ chain.unshift(p.name); p = state.items.find(function(x){ return x.id===p.parentId; }); }
+        bar.title = it.name + "\n" + chain.join(" › ") + "\n" + fmtDisplay(it.start)+" – "+fmtDisplay(it.end) + (it.responsavel ? ("\nResponsável: "+it.responsavel) : "");
+        track.appendChild(bar);
+      });
+      tl.appendChild(track);
+      row.appendChild(tl);
+      boardEl.appendChild(row);
+    });
+  }
+
   function toggleCollapse(id){
     var idx = state.collapsed.indexOf(id);
     if(idx===-1) state.collapsed.push(id); else state.collapsed.splice(idx,1);
@@ -1576,7 +1947,7 @@ datalist{}
   function buildParentOptions(excludeId){
     var sel = document.getElementById("fParent");
     sel.innerHTML = "";
-    var noneOpt = el("option",null,"— Nenhum (fase raiz) —");
+    var noneOpt = el("option",null,"— Nenhum (grupo raiz) —");
     noneOpt.value = "";
     sel.appendChild(noneOpt);
     function walk(parentId, prefix){
@@ -1592,11 +1963,31 @@ datalist{}
   }
 
   function updatePeopleList(){
-    var dl = document.getElementById("peopleList");
-    dl.innerHTML = "";
-    allPeople().forEach(function(p){
-      var o = el("option"); o.value = p; dl.appendChild(o);
+    var sel = document.getElementById("fResp");
+    if(!sel) return;
+    var prev = sel.value;
+    sel.innerHTML = "";
+    var noneOpt = el("option",null,"— Nenhum —");
+    noneOpt.value = "";
+    sel.appendChild(noneOpt);
+    state.people.slice().sort(function(a,b){ return a.localeCompare(b,"pt-BR"); }).forEach(function(p){
+      var o = el("option",null,p); o.value = p; sel.appendChild(o);
     });
+    sel.value = prev;
+  }
+
+  function updateCategoryOptions(){
+    var sel = document.getElementById("fCategoria");
+    if(!sel) return;
+    var prev = sel.value;
+    sel.innerHTML = "";
+    var noneOpt = el("option",null,"— Nenhuma —");
+    noneOpt.value = "";
+    sel.appendChild(noneOpt);
+    state.categories.forEach(function(c){
+      var o = el("option",null,c); o.value = c; sel.appendChild(o);
+    });
+    sel.value = prev;
   }
 
   function openPanel(itemId, parentPreset){
@@ -1610,7 +2001,11 @@ datalist{}
     document.getElementById("fName").value = item ? item.name : "";
     document.getElementById("fStart").value = item && item.start ? item.start : "";
     document.getElementById("fEnd").value = item && item.end ? item.end : "";
+    updatePeopleList();
     document.getElementById("fResp").value = item && item.responsavel ? item.responsavel : "";
+    updateCategoryOptions();
+    document.getElementById("fCategoria").value = item && item.categoria ? item.categoria : "";
+    document.getElementById("fDescricao").value = item && item.descricao ? item.descricao : "";
 
     var statusWrap = document.getElementById("statusOptions");
     statusWrap.innerHTML = "";
@@ -1645,13 +2040,15 @@ datalist{}
   document.getElementById("panelClose").addEventListener("click", closePanel);
   scrim.addEventListener("click", function(){
     if(confirmDialog.classList.contains("open")){ closeConfirm(false); return; }
-    closePanel(); closeMarcoPanel();
+    closePanel(); closeMarcoPanel(); closeListManager();
   });
   document.addEventListener("keydown", function(ev){
     if(ev.key !== "Escape") return;
     if(confirmDialog.classList.contains("open")){ closeConfirm(false); return; }
     if(editPanel.classList.contains("open")) closePanel();
     if(marcoPanel.classList.contains("open")) closeMarcoPanel();
+    if(listManagerPanel.classList.contains("open")) closeListManager();
+    closeSettingsMenu();
   });
 
   // ---------- custom confirm dialog (window.confirm is blocked inside the published artifact's sandboxed iframe) ----------
@@ -1668,7 +2065,7 @@ datalist{}
   }
   function closeConfirm(result){
     confirmDialog.classList.remove("open");
-    if(!editPanel.classList.contains("open") && !marcoPanel.classList.contains("open")){
+    if(!editPanel.classList.contains("open") && !marcoPanel.classList.contains("open") && !listManagerPanel.classList.contains("open")){
       scrim.classList.remove("open");
     }
     var resolve = confirmResolve;
@@ -1691,7 +2088,7 @@ datalist{}
     marcoPanel.classList.remove("open");
     scrim.classList.remove("open");
   }
-  document.getElementById("btnAddMarco").addEventListener("click", openMarcoPanel);
+  document.getElementById("menuAddMarco").addEventListener("click", function(){ closeSettingsMenu(); openMarcoPanel(); });
   document.getElementById("marcoPanelClose").addEventListener("click", closeMarcoPanel);
   document.getElementById("btnCancelMarco").addEventListener("click", closeMarcoPanel);
   document.getElementById("btnSaveMarco").addEventListener("click", function(){
@@ -1707,13 +2104,183 @@ datalist{}
     toast("Marco adicionado.");
   });
 
+  // ---------- settings menu (gear) ----------
+  var btnSettings = document.getElementById("btnSettings");
+  var settingsMenu = document.getElementById("settingsMenu");
+  function closeSettingsMenu(){
+    settingsMenu.classList.remove("open");
+    btnSettings.setAttribute("aria-expanded","false");
+  }
+  btnSettings.addEventListener("click", function(ev){
+    ev.stopPropagation();
+    var willOpen = !settingsMenu.classList.contains("open");
+    settingsMenu.classList.toggle("open", willOpen);
+    btnSettings.setAttribute("aria-expanded", willOpen ? "true" : "false");
+  });
+  document.addEventListener("click", function(ev){
+    if(settingsMenu.classList.contains("open") && !settingsMenu.contains(ev.target) && ev.target !== btnSettings){
+      closeSettingsMenu();
+    }
+  });
+
+  // ---------- theme ----------
+  function applyTheme(theme){
+    if(theme === "dark" || theme === "light"){
+      document.documentElement.dataset.theme = theme;
+    } else {
+      delete document.documentElement.dataset.theme;
+    }
+    var isDark = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === "dark"
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    document.getElementById("menuThemeLabel").textContent = isDark ? "Modo claro" : "Modo escuro";
+  }
+  applyTheme(state.theme);
+  document.getElementById("menuToggleTheme").addEventListener("click", function(){
+    var current = document.documentElement.dataset.theme;
+    var isDark = current === "dark" || (!current && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = isDark ? "light" : "dark";
+    state.theme = next;
+    saveState();
+    applyTheme(next);
+    closeSettingsMenu();
+  });
+
+  // ---------- list manager (Responsáveis / Categorias) ----------
+  var listManagerPanel = document.getElementById("listManagerPanel");
+  var lmKind = null;
+  function openListManager(kind){
+    lmKind = kind;
+    document.getElementById("listManagerTitle").textContent = kind === "people" ? "Gerenciar responsáveis" : "Gerenciar categorias";
+    document.getElementById("lmNewLabel").textContent = kind === "people" ? "Novo responsável" : "Nova categoria";
+    document.getElementById("lmNewValue").value = "";
+    renderListManager();
+    listManagerPanel.classList.add("open");
+    scrim.classList.add("open");
+    closeSettingsMenu();
+    setTimeout(function(){ document.getElementById("lmNewValue").focus(); }, 180);
+  }
+  function closeListManager(){
+    listManagerPanel.classList.remove("open");
+    scrim.classList.remove("open");
+    lmKind = null;
+  }
+  function renderListManager(){
+    var container = document.getElementById("lmList");
+    container.innerHTML = "";
+    var list = lmKind === "people" ? state.people : state.categories;
+    list.slice().sort(function(a,b){ return a.localeCompare(b,"pt-BR"); }).forEach(function(value){
+      var row = el("div","lm-row");
+      var nameSpan = el("span","lm-name", value);
+      nameSpan.contentEditable = "true";
+      nameSpan.spellcheck = false;
+      nameSpan.addEventListener("blur", function(){
+        var newVal = nameSpan.textContent.trim();
+        if(!newVal || newVal === value){ nameSpan.textContent = value; return; }
+        renameListValue(lmKind, value, newVal);
+      });
+      nameSpan.addEventListener("keydown", function(ev){ if(ev.key === "Enter"){ ev.preventDefault(); nameSpan.blur(); } });
+      row.appendChild(nameSpan);
+      var delBtn = el("button","lm-delete","<svg viewBox='0 0 16 16' fill='none'><path d='M4 4l8 8M12 4l-8 8' stroke='currentColor' stroke-width='1.5' stroke-linecap='round'/></svg>");
+      delBtn.title = "Excluir";
+      delBtn.addEventListener("click", function(){
+        var warn = lmKind === "people"
+          ? "Excluir \""+value+"\"? As tarefas com esse responsável ficarão sem atribuição."
+          : "Excluir \""+value+"\"? As tarefas com essa categoria ficarão sem categoria.";
+        showConfirm(warn).then(function(ok){
+          if(!ok) return;
+          deleteListValue(lmKind, value);
+        });
+      });
+      row.appendChild(delBtn);
+      container.appendChild(row);
+    });
+    if(list.length === 0){
+      container.appendChild(el("div","lm-empty", lmKind === "people" ? "Nenhum responsável cadastrado." : "Nenhuma categoria cadastrada."));
+    }
+  }
+  function renameListValue(kind, oldVal, newVal){
+    var list = kind === "people" ? state.people : state.categories;
+    if(list.indexOf(newVal) !== -1){ toast("Já existe um valor com esse nome."); renderListManager(); return; }
+    var idx = list.indexOf(oldVal);
+    if(idx !== -1) list[idx] = newVal;
+    state.items.forEach(function(it){
+      if(kind === "people" && it.responsavel === oldVal) it.responsavel = newVal;
+      if(kind === "categories" && it.categoria === oldVal) it.categoria = newVal;
+    });
+    saveState();
+    renderListManager();
+    render();
+    toast("Atualizado.");
+  }
+  function deleteListValue(kind, val){
+    if(kind === "people"){
+      state.people = state.people.filter(function(p){ return p !== val; });
+      state.items.forEach(function(it){ if(it.responsavel === val) it.responsavel = null; });
+    } else {
+      state.categories = state.categories.filter(function(c){ return c !== val; });
+      state.items.forEach(function(it){ if(it.categoria === val) it.categoria = null; });
+    }
+    saveState();
+    renderListManager();
+    render();
+    toast("Removido.");
+  }
+  document.getElementById("menuManageResp").addEventListener("click", function(){ openListManager("people"); });
+  document.getElementById("menuManageCat").addEventListener("click", function(){ openListManager("categories"); });
+  document.getElementById("listManagerClose").addEventListener("click", closeListManager);
+  document.getElementById("lmAddBtn").addEventListener("click", function(){
+    var val = document.getElementById("lmNewValue").value.trim();
+    if(!val){ toast("Digite um nome."); return; }
+    var list = lmKind === "people" ? state.people : state.categories;
+    if(list.indexOf(val) !== -1){ toast("Já existe."); return; }
+    list.push(val);
+    document.getElementById("lmNewValue").value = "";
+    saveState();
+    renderListManager();
+    render();
+    toast(lmKind === "people" ? "Responsável adicionado." : "Categoria adicionada.");
+  });
+
+  // ---------- export to Excel (CSV) ----------
+  function csvEscape(val){
+    var s = (val === null || val === undefined) ? "" : String(val);
+    if(/[",\n]/.test(s)) s = '"'+s.replace(/"/g,'""')+'"';
+    return s;
+  }
+  document.getElementById("menuExportExcel").addEventListener("click", async function(){
+    closeSettingsMenu();
+    var rows = [["Grupo","Tarefa","Categoria","Responsável","Início","Fim","Status","Descrição"]];
+    var leaves = state.items.filter(function(it){ return !isGroup(it); });
+    leaves.forEach(function(it){
+      var chain = [];
+      var p = state.items.find(function(x){ return x.id === it.parentId; });
+      while(p){ chain.unshift(p.name); p = state.items.find(function(x){ return x.id === p.parentId; }); }
+      var statusLabel = (STATUSES.find(function(s){ return s.id === it.status; }) || {}).label || it.status || "";
+      rows.push([chain.join(" > "), it.name, it.categoria||"", it.responsavel||"", it.start||"", it.end||"", statusLabel, it.descricao||""]);
+    });
+    var csv = "﻿" + rows.map(function(r){ return r.map(csvEscape).join(","); }).join("\r\n");
+    if(window.claude && window.claude.downloads){
+      try{
+        await window.claude.downloads.save({filename:"planejamento-crm-itau.csv", data:csv});
+        toast("Arquivo exportado.");
+      }catch(e){
+        toast("Não foi possível exportar agora.");
+      }
+    } else {
+      toast("Exportação indisponível neste ambiente.");
+    }
+  });
+
   document.getElementById("btnSave").addEventListener("click", function(){
     var name = document.getElementById("fName").value.trim();
     if(!name){ toast("Dê um nome ao item antes de salvar."); return; }
     var parentId = document.getElementById("fParent").value || null;
     var start = document.getElementById("fStart").value || null;
     var end = document.getElementById("fEnd").value || null;
-    var resp = document.getElementById("fResp").value.trim() || null;
+    var resp = document.getElementById("fResp").value || null;
+    var categoria = document.getElementById("fCategoria").value || null;
+    var descricao = document.getElementById("fDescricao").value;
     var statusBtn = document.querySelector(".status-opt.selected");
     var status = statusBtn ? statusBtn.dataset.status : "planejado";
 
@@ -1726,13 +2293,13 @@ datalist{}
       var item = state.items.find(function(it){ return it.id===editingId; });
       item.name = name; item.parentId = parentId;
       item.start = start; item.end = end; item.responsavel = resp; item.status = status;
+      item.categoria = categoria; item.descricao = descricao;
     } else {
       var id = "it-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
       var sibOrders = childrenOf(parentId).map(function(s){ return s.order||0; });
       var newOrder = sibOrders.length ? Math.max.apply(null, sibOrders)+1 : 0;
-      state.items.push({id:id,parentId:parentId,name:name,start:start,end:end,responsavel:resp,status:status,order:newOrder});
+      state.items.push({id:id,parentId:parentId,name:name,start:start,end:end,responsavel:resp,status:status,order:newOrder,categoria:categoria,descricao:descricao});
     }
-    if(resp && state.people.indexOf(resp)===-1) state.people.push(resp);
     saveState();
     closePanel();
     render();
@@ -1801,7 +2368,19 @@ datalist{}
       try{
         var parsed = JSON.parse(reader.result);
         if(!parsed || !Array.isArray(parsed.items)) throw new Error("formato inválido");
-        state = {people:parsed.people||["A definir"], collapsed:parsed.collapsed||[], marcos:parsed.marcos||[], items:parsed.items};
+        parsed.items.forEach(function(it){
+          if(it.categoria === undefined) it.categoria = null;
+          if(it.descricao === undefined) it.descricao = "";
+        });
+        state = {
+          people:parsed.people||["A definir"],
+          categories:Array.isArray(parsed.categories)?parsed.categories:DEFAULT_CATEGORIES.slice(),
+          collapsed:parsed.collapsed||[],
+          marcos:parsed.marcos||[],
+          leftColWidth:parsed.leftColWidth||340,
+          theme:parsed.theme||null,
+          items:parsed.items
+        };
         saveState();
         render();
         toast("Planejamento importado.");
@@ -1834,6 +2413,49 @@ datalist{}
       setTimeout(function(){ t.remove(); }, 200);
     }, 2600);
   }
+
+  // ---------- resizable left column ----------
+  document.documentElement.style.setProperty("--namecol-w", (state.leftColWidth||340)+"px");
+  var colResizeHandle = document.getElementById("colResizeHandle");
+  function positionResizeHandle(){
+    var headerNameCol = document.querySelector(".row.header-row .name-col");
+    if(!headerNameCol) return;
+    var navRect = headerNameCol.getBoundingClientRect();
+    var scrollRect = boardScroll.getBoundingClientRect();
+    colResizeHandle.style.left = navRect.right + "px";
+    colResizeHandle.style.top = scrollRect.top + "px";
+    colResizeHandle.style.height = scrollRect.height + "px";
+  }
+  (function(){
+    var dragging = false, startX = 0, startWidth = 0;
+    colResizeHandle.addEventListener("pointerdown", function(ev){
+      dragging = true;
+      startX = ev.clientX;
+      startWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--namecol-w")) || 340;
+      colResizeHandle.classList.add("dragging");
+      try{ colResizeHandle.setPointerCapture(ev.pointerId); }catch(e){}
+      ev.preventDefault();
+    });
+    colResizeHandle.addEventListener("pointermove", function(ev){
+      if(!dragging) return;
+      var dx = ev.clientX - startX;
+      var newWidth = Math.max(220, Math.min(640, startWidth + dx));
+      document.documentElement.style.setProperty("--namecol-w", newWidth+"px");
+      positionResizeHandle();
+    });
+    function endDrag(){
+      if(!dragging) return;
+      dragging = false;
+      colResizeHandle.classList.remove("dragging");
+      var w = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--namecol-w")) || 340;
+      state.leftColWidth = w;
+      saveState();
+    }
+    colResizeHandle.addEventListener("pointerup", endDrag);
+    colResizeHandle.addEventListener("pointercancel", endDrag);
+  })();
+  window.addEventListener("resize", positionResizeHandle);
+  boardScroll.addEventListener("scroll", positionResizeHandle);
 
   render();
 })();
