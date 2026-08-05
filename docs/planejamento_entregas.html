@@ -1451,7 +1451,6 @@ datalist{}
     disc.innerHTML = "<svg viewBox='0 0 12 12' fill='none'><path d='M3 2l5 4-5 4' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>";
     var collapsed = state.collapsed.indexOf(item.id) !== -1;
     if(collapsed) disc.classList.add("collapsed");
-    if(group && depth > 0 && collapsed) nameCol.style.minHeight = "84px";
     disc.addEventListener("click", function(ev){
       ev.stopPropagation();
       toggleCollapse(item.id);
@@ -1555,15 +1554,11 @@ datalist{}
 
   function buildGroupCascadeBar(item, range){
     var r = itemRange(item);
-    var bar = el("div","bar bar-big group-bar");
+    var bar = el("div","bar group-bar");
     bar.style.background = phaseColorFor(item);
-    bar.style.color = "#fff";
     bar.style.left = dateToPx(r.start, range)+"px";
     var w = dateToPx(r.end, range) - dateToPx(r.start, range);
-    bar.style.width = Math.max(96, w)+"px";
-    var label = el("span","bar-label");
-    label.textContent = item.name;
-    bar.appendChild(label);
+    bar.style.width = Math.max(14, w)+"px";
     var leaves = descendantLeaves(item);
     bar.title = item.name + "\n" + fmtDisplay(r.start)+" – "+fmtDisplay(r.end) + "\n"+leaves.length+" sub-item"+(leaves.length===1?"":"s")+"\n(arraste para mover ou ajustar o intervalo — os sub-itens acompanham quando necessário)";
     attachGroupCascadeInteractions(bar, item, range);
@@ -1575,6 +1570,7 @@ datalist{}
     var mode = null;
     var startClientX = 0;
     var origStartPx = 0, origEndPx = 0;
+    var origRangeStart = null, origRangeEnd = null;
     var moved = false;
     var justDragged = false;
 
@@ -1602,6 +1598,8 @@ datalist{}
       startClientX = ev.clientX;
       origStartPx = dateToPx(r0.start, range);
       origEndPx = dateToPx(r0.end, range);
+      origRangeStart = r0.start;
+      origRangeEnd = r0.end;
       moved = false;
       bar.classList.add("dragging");
       bar.style.cursor = mode === "move" ? "grabbing" : "ew-resize";
@@ -1641,20 +1639,30 @@ datalist{}
           var newStartPx = Math.min(origStartPx+dx, origEndPx-PX_PER_DAY);
           var newStartStr = pxToDateStr(newStartPx, range);
           var newStartDate = parseDate(newStartStr);
+          var oldStartDate = parseDate(origRangeStart);
+          var expandingStart = newStartDate < oldStartDate;
           leaves.forEach(function(l){
-            if(parseDate(l.start) < newStartDate){
+            var lStart = parseDate(l.start);
+            if(lStart < newStartDate){
               l.start = newStartStr;
               if(parseDate(l.end) < newStartDate) l.end = newStartStr;
+            } else if(expandingStart && lStart.getTime() === oldStartDate.getTime()){
+              l.start = newStartStr;
             }
           });
         } else if(mode === "resize-end"){
           var newEndPx = Math.max(origEndPx+dx, origStartPx+PX_PER_DAY);
           var newEndStr = pxToDateStr(newEndPx, range);
           var newEndDate = parseDate(newEndStr);
+          var oldEndDate = parseDate(origRangeEnd);
+          var expandingEnd = newEndDate > oldEndDate;
           leaves.forEach(function(l){
-            if(parseDate(l.end) > newEndDate){
+            var lEnd = parseDate(l.end);
+            if(lEnd > newEndDate){
               l.end = newEndStr;
               if(parseDate(l.start) > newEndDate) l.start = newEndStr;
+            } else if(expandingEnd && lEnd.getTime() === oldEndDate.getTime()){
+              l.end = newEndStr;
             }
           });
         }
