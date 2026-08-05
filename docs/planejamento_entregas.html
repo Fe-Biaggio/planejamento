@@ -45,10 +45,11 @@
   --ink-faint:#8B939C;
   --line:#E2DFD6;
   --line-strong:#CFCCC1;
-  --accent:#1F6F63;
-  --accent-ink:#0E453D;
-  --accent-soft:#DCEBE7;
-  --accent-soft-line:#B9D8D1;
+  --accent:#1D5C99;
+  --accent-ink:#123A61;
+  --accent-soft:#DCE7F2;
+  --accent-soft-line:#B8D0E8;
+  --brand-orange:#EC7000;
   --warn:#C9682B;
   --warn-soft:#F5E1D2;
   --good:#3A7D44;
@@ -76,10 +77,11 @@
     --ink-faint:#6D7580;
     --line:#2B313B;
     --line-strong:#3A4149;
-    --accent:#4FB3A1;
-    --accent-ink:#B7E6DB;
-    --accent-soft:#1C3733;
-    --accent-soft-line:#2C534C;
+    --accent:#5B9FE0;
+    --accent-ink:#C9E2FA;
+    --accent-soft:#1C2E42;
+    --accent-soft-line:#2C4A66;
+    --brand-orange:#EC7000;
     --warn:#E2934F;
     --warn-soft:#3C2C1E;
     --good:#5FAE6C;
@@ -104,10 +106,11 @@
   --ink-faint:#6D7580;
   --line:#2B313B;
   --line-strong:#3A4149;
-  --accent:#4FB3A1;
-  --accent-ink:#B7E6DB;
-  --accent-soft:#1C3733;
-  --accent-soft-line:#2C534C;
+  --accent:#5B9FE0;
+  --accent-ink:#C9E2FA;
+  --accent-soft:#1C2E42;
+  --accent-soft-line:#2C4A66;
+  --brand-orange:#EC7000;
   --warn:#E2934F;
   --warn-soft:#3C2C1E;
   --good:#5FAE6C;
@@ -131,10 +134,11 @@
   --ink-faint:#8B939C;
   --line:#E2DFD6;
   --line-strong:#CFCCC1;
-  --accent:#1F6F63;
-  --accent-ink:#0E453D;
-  --accent-soft:#DCEBE7;
-  --accent-soft-line:#B9D8D1;
+  --accent:#1D5C99;
+  --accent-ink:#123A61;
+  --accent-soft:#DCE7F2;
+  --accent-soft-line:#B8D0E8;
+  --brand-orange:#EC7000;
   --warn:#C9682B;
   --warn-soft:#F5E1D2;
   --good:#3A7D44;
@@ -189,7 +193,7 @@ button{font-family:inherit;}
   font-weight:500;
   letter-spacing:.09em;
   text-transform:uppercase;
-  color:var(--accent);
+  color:var(--brand-orange);
   margin:0 0 6px;
 }
 h1{
@@ -400,6 +404,7 @@ h1{
   background:var(--surface);
 }
 .row.level-fase{background:var(--surface-raised);}
+.row.row-section-divider{border-top:2px solid var(--line-strong);}
 .row:hover .row-actions{opacity:1;}
 
 .name-col{
@@ -788,7 +793,7 @@ h1{
   width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;
 }
 .panel-close:hover{background:var(--bg);color:var(--ink);}
-.panel-body{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:20px;}
+.panel-body{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:26px;}
 .field{display:flex;flex-direction:column;gap:7px;}
 .field label{
   font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);
@@ -807,8 +812,10 @@ h1{
 .field-row{display:flex;gap:10px;}
 .field-row .field{flex:1;min-width:0;}
 .field-hint{font-size:11px;color:var(--ink-faint);}
-.field-resp{margin-top:2px;}
+.field-resp{margin-top:8px;}
 .field-status{margin-top:6px;padding-top:14px;border-top:1px solid var(--line);}
+.field-categoria{margin-top:8px;}
+.field-descricao{margin-top:8px;}
 .status-options{display:flex;flex-wrap:wrap;gap:8px;}
 .status-opt{
   border:1px solid var(--line-strong);
@@ -956,11 +963,11 @@ datalist{}
         <label>Status</label>
         <div class="status-options" id="statusOptions"></div>
       </div>
-      <div class="field">
+      <div class="field field-categoria">
         <label for="fCategoria">Categoria</label>
         <select id="fCategoria"></select>
       </div>
-      <div class="field">
+      <div class="field field-descricao">
         <label for="fDescricao">Descrição</label>
         <textarea id="fDescricao" rows="4" placeholder="Detalhes, contexto, links..."></textarea>
       </div>
@@ -1365,18 +1372,18 @@ datalist{}
 
   function renderEntregaView(range, timelineWidth){
     var roots = state.items.filter(function(it){ return it.parentId === null; });
-    roots.forEach(function(root){
-      appendItemRow(root, 0, range, timelineWidth);
+    roots.forEach(function(root, idx){
+      appendItemRow(root, 0, range, timelineWidth, idx>0);
     });
     if(roots.length===0){
       boardEl.appendChild(el("div","empty-state","Nenhuma tarefa cadastrada ainda. Clique em “+ Nova Tarefa” para começar."));
     }
   }
 
-  function appendItemRow(item, depth, range, timelineWidth){
+  function appendItemRow(item, depth, range, timelineWidth, sectionDivider){
     var group = isGroup(item);
     var levelClass = depth===0 ? "level-fase" : (depth===1 ? "level-grupo" : "level-entrega");
-    var row = el("div","row "+levelClass);
+    var row = el("div","row "+levelClass+(sectionDivider?" row-section-divider":""));
     row.dataset.id = item.id;
 
     var nameCol = el("div","name-col");
@@ -1890,7 +1897,7 @@ datalist{}
       return;
     }
 
-    cats.forEach(function(categoria){
+    cats.forEach(function(categoria, idx){
       var items = byCategoria[categoria].slice().sort(function(a,b){ return parseDate(a.start)-parseDate(b.start); });
       var lanesEnd = [];
       items.forEach(function(it){
@@ -1903,7 +1910,7 @@ datalist{}
       var laneCount = Math.max(1, lanesEnd.length);
       var rowHeight = laneCount*86 + 16;
 
-      var row = el("div","row person-row");
+      var row = el("div","row person-row"+(idx>0?" row-section-divider":""));
       row.style.minHeight = rowHeight+"px";
       var nameCol = el("div","name-col");
       nameCol.style.minHeight = rowHeight+"px";
